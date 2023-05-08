@@ -17,3 +17,5 @@ async def on_message(message):
         return
     if message.content =='hello':
         await message.channel.send("I'm eating glass.")
+
+client.run(token)
