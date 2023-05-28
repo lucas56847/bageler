@@ -1,5 +1,6 @@
 import os
-import discord,random
+import discord,random, requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,6 +13,12 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
+url = "http://toonhq.org/invasions/"
+rawdata = requests.get(url)
+page = rawdata.text
+soup = BeautifulSoup(page, 'html.parser')
+x1 = soup.find_all(class_ = 'card__image')
+print(rawdata)
 
 @client.event
 async def on_ready():
@@ -73,4 +80,12 @@ async def on_message(message):
     elif message.content == 'raise-exception':
         raise discord.DiscordException
         return
+    
+@client.event
+async def on_error(event, *args, **kwargs):
+    with open('err.log', 'a') as f:
+        if event == 'on_message':
+            f.write(f'Unhandled message: {args[0]}\n')
+        else:
+            raise
 client.run(token)
