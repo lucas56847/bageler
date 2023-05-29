@@ -16,7 +16,7 @@ client = discord.Client(intents=intents)
 
 bot = commands.Bot(command_prefix='!', intents = intents)
 
-"""
+
 @client.event
 async def on_ready():
     print(f'{client.user} has ARRIVED')
@@ -77,20 +77,17 @@ async def on_message(message):
     elif message.content == 'raise-exception':
         raise discord.DiscordException
         return
-"""    
-#@client.event
-#async def on_error(event, *args, **kwargs):
-#    with open('err.log', 'a') as f:
-#        if event == 'on_message':
-#            f.write(f'Unhandled message: {args[0]}\n')
-#        else:
-#            raise
+ 
+@client.event
+async def on_error(event, *args, **kwargs):
+    with open('err.log', 'a') as f:
+        if event == 'on_message':
+            f.write(f'Unhandled message: {args[0]}\n')
+        else:
+            raise
 Coglist = []
 @bot.command(name = 'invasions')
 async def coginvasions(ctx):
-    #bagelresponse = getinvasions()
-   # print(bagelresponse)
-  #  if bagelresponse:
     await ctx.send("Grabbing invasions...")
     NewCoglist = getinvasions(Coglist)
     bagelresponse = '\n'.join((NewCoglist))
