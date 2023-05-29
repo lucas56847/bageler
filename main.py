@@ -1,9 +1,6 @@
 import os
 import discord,random, requests
-import time
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+
 from bs4 import BeautifulSoup
 from invasion import *
 from dotenv import load_dotenv
