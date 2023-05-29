@@ -1,7 +1,9 @@
 import os
 import discord,random, requests
 from bs4 import BeautifulSoup
+from invasion import *
 from dotenv import load_dotenv
+from discord.ext import commands
 load_dotenv()
 
 token = os.getenv("token")
@@ -10,16 +12,11 @@ intents = discord.Intents.default()
 intents.presences = True
 intents.members = True
 intents.message_content = True
-
 client = discord.Client(intents=intents)
 
-url = "http://toonhq.org/invasions/"
-rawdata = requests.get(url)
-page = rawdata.text
-soup = BeautifulSoup(page, 'html.parser')
-x1 = soup.find_all(class_ = 'card__image')
-print(rawdata)
+bot = commands.Bot(command_prefix='!', intents = intents)
 
+"""
 @client.event
 async def on_ready():
     print(f'{client.user} has ARRIVED')
@@ -80,12 +77,24 @@ async def on_message(message):
     elif message.content == 'raise-exception':
         raise discord.DiscordException
         return
-    
-@client.event
-async def on_error(event, *args, **kwargs):
-    with open('err.log', 'a') as f:
-        if event == 'on_message':
-            f.write(f'Unhandled message: {args[0]}\n')
-        else:
-            raise
-client.run(token)
+"""    
+#@client.event
+#async def on_error(event, *args, **kwargs):
+#    with open('err.log', 'a') as f:
+#        if event == 'on_message':
+#            f.write(f'Unhandled message: {args[0]}\n')
+#        else:
+#            raise
+Coglist = []
+@bot.command(name = 'invasions')
+async def coginvasions(ctx):
+    #bagelresponse = getinvasions()
+   # print(bagelresponse)
+  #  if bagelresponse:
+    await ctx.send("Grabbing invasions...")
+    NewCoglist = getinvasions(Coglist)
+    bagelresponse = '\n'.join((NewCoglist))
+    await ctx.send(bagelresponse)
+
+bot.run(token)
+#client.run(token)
