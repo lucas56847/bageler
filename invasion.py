@@ -10,7 +10,10 @@ def getinvasions(Coglist):
     options.add_argument('--headless')
     options.add_argument('--ignore-certificate-errors')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(chrome_options=options)
+    from selenium import webdriver
+    from webdriver_manager.chrome import ChromeDriverManager
+
+    driver = webdriver.Chrome(ChromeDriverManager().install())
     driver.get(url)
 
     page = driver.page_source
