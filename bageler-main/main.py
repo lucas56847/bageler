@@ -18,36 +18,12 @@ client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='!', intents = intents)
 
 
-@client.event
+@bot.listen()
 async def on_ready():
-    print(f'{client.user} has ARRIVED')
-    print(f'list: {client.guilds}')
-   # print(f'listmembers: {guild.members}')
-
-
-    for guild in client.guilds:
-        if guild.name == guildname:
-            break
-
-    print(
-        f'{client.user} is connected to the following guild:\n'
-        f'{guild.name}(id: {guild.id})\n'
-    )
-
-   # members = '\n - '.join([member.name for member in guild.members])
-    for members in guild.members:
-      print(f'Guild Member:\n - {members.name}')    
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    if message.content =='hello':
-        await message.channel.send("I'm eating glass.")
-        return
-    if message.content =='Julia':
-        await message.channel.send(file=discord.File('agony.png'))
-        return
+    print('I\'m eating glass')
+@bot.command(name = 'Bateman')
+async def bateman(ctx):
+   
     am_psycho_quotes = ['Feed me a stray cat.',
                         'I have to return some videotapes.',
                         'Do you like Huey Lewis and The News?',
@@ -72,12 +48,9 @@ async def on_message(message):
                         'I\'m just a happy camper! Rockin\' and a-rollin\'!',
                         'Hi, this is Paul Allen. I\'m being called away to London for a few days. Meredith, I\'ll call you when I get back. ' +
                         'Hasta la vista, baby']
-    if message.content == 'Bateman':
-        response = random.choice(am_psycho_quotes) 
-        await message.channel.send(response)
-    elif message.content == 'raise-exception':
-        raise discord.DiscordException
-        return
+    response = random.choice(am_psycho_quotes) 
+    await ctx.send(response)
+
  
 @client.event
 async def on_error(event, *args, **kwargs):
@@ -92,7 +65,10 @@ async def coginvasions(ctx):
     await ctx.send("Grabbing invasions...")
     NewCoglist = getinvasions(Coglist)
     bagelresponse = '\n'.join((NewCoglist))
+    if not bagelresponse:
+        bagelresponse = "Oh god oh fuck there are no invasions"
     await ctx.send(bagelresponse)
+    del bagelresponse    
     del Coglist[:]
 
 bot.run(token)
