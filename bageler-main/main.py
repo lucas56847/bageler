@@ -17,11 +17,10 @@ client = discord.Client(intents=intents)
 
 bot = commands.Bot(command_prefix='!', intents = intents)
 
-"""
+
 @bot.listen()
-async def on_ready(ctx):
+async def on_ready():
     print('I\'m eating glass')
-    await ctx.send("I\'m eating glass.")    """
 @bot.command(name = 'Bateman')
 async def bateman(ctx):
    
