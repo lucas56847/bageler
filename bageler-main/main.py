@@ -1,6 +1,6 @@
 import os
 import discord,random, requests
-
+from array import *
 from bs4 import BeautifulSoup
 from invasion import *
 from dotenv import load_dotenv
@@ -13,6 +13,8 @@ intents = discord.Intents.default()
 intents.presences = True
 intents.members = True
 intents.message_content = True
+intents.reactions = True
+intents.guilds = True
 client = discord.Client(intents=intents)
 
 bot = commands.Bot(command_prefix='!', intents = intents)
@@ -21,6 +23,18 @@ bot = commands.Bot(command_prefix='!', intents = intents)
 @bot.listen()
 async def on_ready():
     print('I\'m eating glass')
+    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))  
+    while True:
+        NewCoglist = getinvasions(Coglist)
+        bagelresponse = '\n\n'.join((NewCoglist))
+        if not bagelresponse:
+            bagelresponse = "Oh god oh fuck there are no invasions"
+        bagelresponse = "Invasions Currently:\n" + bagelresponse
+        await channel.send(bagelresponse)
+        del bagelresponse    
+        del Coglist[:]        
+        #await channel.send("test")
+        time.sleep(500)
 @bot.command(name = 'Bateman')
 async def bateman(ctx):
    
@@ -51,25 +65,28 @@ async def bateman(ctx):
     response = random.choice(am_psycho_quotes) 
     await ctx.send(response)
 
- 
-@client.event
-async def on_error(event, *args, **kwargs):
-    with open('err.log', 'a') as f:
-        if event == 'on_message':
-            f.write(f'Unhandled message: {args[0]}\n')
-        else:
-            raise
 Coglist = []
+Numlist =[]
+DistrictList =[]
 @bot.command(name = 'invasions')
 async def coginvasions(ctx):
     await ctx.send("Grabbing invasions...")
     NewCoglist = getinvasions(Coglist)
-    bagelresponse = '\n'.join((NewCoglist))
+    bagelresponse = '\n\n'.join((NewCoglist))
     if not bagelresponse:
         bagelresponse = "Oh god oh fuck there are no invasions"
     await ctx.send(bagelresponse)
     del bagelresponse    
     del Coglist[:]
 
+
+@bot.event
+async def on_update(update):
+    await update.send("among us")
+    
+@bot.command(name = 'test')
+async def test(channel):
+    await channel.send("test")
 bot.run(token)
 client.run(token)
+
