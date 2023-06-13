@@ -1,12 +1,16 @@
-import os
+import os, time, asyncio, pytz
 import discord,random, requests
 from array import *
+from datetime import datetime
 from bs4 import BeautifulSoup
 from invasion import *
 from dotenv import load_dotenv
 from discord.ext import commands
 load_dotenv()
 
+#TODO implement linux compatibility with .env file loading procedure
+#TODO error handling
+#TODO get rid of nohup: nohup command >/dev/null 2>&1 
 token = os.getenv("token")
 guildname = os.getenv('discord_guild')
 intents = discord.Intents.default()
@@ -16,26 +20,50 @@ intents.message_content = True
 intents.reactions = True
 intents.guilds = True
 client = discord.Client(intents=intents)
-
+#initializes discord bot settings to allow for correct command handling
+#commands can be activated with '!'
 bot = commands.Bot(command_prefix='!', intents = intents)
 
+tz_LA = pytz.timezone('America/Los_Angeles') 
+# Get the correct timezone for use later when bot is running
+#PST for Toon time
 
-@bot.listen()
+#confirms that the bot is online
+@bot.event
 async def on_ready():
+    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
+    await channel.send("The Bageler emerges!")
+    
+#monitor function that monitors the invasion every ~8 minutes  
+@bot.command(name = 'monitor')
+async def monitor(bagelresponse):
     print('I\'m eating glass')
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))  
     while True:
+        datetime_LA = datetime.now(tz_LA)
+
+        # Format the time as a string
+        ToonTime = datetime_LA.strftime("%H:%M:%S") 
+        
         NewCoglist = getinvasions(Coglist)
         bagelresponse = '\n\n'.join((NewCoglist))
+        
+        
+        #no invasions error handling
         if not bagelresponse:
             bagelresponse = "Oh god oh fuck there are no invasions"
-        bagelresponse = "Invasions Currently:\n" + bagelresponse
+        #formatting
+        bagelresponse = "## __Invasions at: " + ToonTime + " Toon time (PST)__\n" + bagelresponse
         await channel.send(bagelresponse)
+        
+        #deletes list at the end 
         del bagelresponse    
         del Coglist[:]        
-        #await channel.send("test")
-        time.sleep(500)
+        #runs every 8 minutes 
+        await asyncio.sleep(500)
 @bot.command(name = 'Bateman')
+#TODO more movies?
+#silly function to test message functionality. left in as it tests bot's simple commands
 async def bateman(ctx):
    
     am_psycho_quotes = ['Feed me a stray cat.',
@@ -68,6 +96,8 @@ async def bateman(ctx):
 Coglist = []
 Numlist =[]
 DistrictList =[]
+
+#invasions can be manually grabbed
 @bot.command(name = 'invasions')
 async def coginvasions(ctx):
     await ctx.send("Grabbing invasions...")
@@ -78,15 +108,11 @@ async def coginvasions(ctx):
     await ctx.send(bagelresponse)
     del bagelresponse    
     del Coglist[:]
-
-
-@bot.event
-async def on_update(update):
-    await update.send("among us")
+#TODO - implement message sending to users that opt in for a specific cog or suit type
+#TODO add better comments
     
 @bot.command(name = 'test')
 async def test(channel):
     await channel.send("test")
 bot.run(token)
-client.run(token)
 
