@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 #initializes discord bot settings to allow for correct command handling
 #commands can be activated with '!'
 bot = commands.Bot(command_prefix='!', intents = intents)
-
+Monitoring = 0
 tz_LA = pytz.timezone('America/Los_Angeles') 
 # Get the correct timezone for use later when bot is running
 #PST for Toon time
@@ -37,11 +37,16 @@ async def on_ready():
 #monitor function that monitors the invasion every ~8 minutes  
 @bot.command(name = 'monitor')
 async def monitor(bagelresponse):
+    Monitoring = 1
     print('I\'m eating glass')
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))  
-    while True:
+    while Monitoring:
         datetime_LA = datetime.now(tz_LA)
-
+        running = 1
+        if running:
+            await channel.send("Monitoring already in progress! Idiot!")
+            break
+        
         # Format the time as a string
         ToonTime = datetime_LA.strftime("%H:%M:%S") 
         
