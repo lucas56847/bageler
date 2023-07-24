@@ -24,6 +24,7 @@ client = discord.Client(intents=intents)
 #commands can be activated with '!'
 bot = commands.Bot(command_prefix='!', intents = intents)
 Monitoring = 0
+running = 0
 tz_LA = pytz.timezone('America/Los_Angeles') 
 # Get the correct timezone for use later when bot is running
 #PST for Toon time
@@ -33,17 +34,29 @@ tz_LA = pytz.timezone('America/Los_Angeles')
 async def on_ready():
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
     await channel.send("The Bageler emerges!")
+    print("Eat glass!")
+#monitor function that monitors the invasion every ~8 minutes 
+@bot.command(name = 'stop')
+async def stop(response):
+    global Monitoring
+    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
+    Monitoring = 0
     
-#monitor function that monitors the invasion every ~8 minutes  
+    response = "Stopping!"
+    print(response)
+    await channel.send(response)
 @bot.command(name = 'monitor')
 async def monitor(bagelresponse):
+    global Monitoring
     Monitoring = 1
+    global running
+    running += 1
     print('I\'m eating glass')
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))  
     while Monitoring:
         datetime_LA = datetime.now(tz_LA)
-        running = 1
-        if running:
+    
+        if running > 1:
             await channel.send("Monitoring already in progress! Idiot!")
             break
         
@@ -66,6 +79,7 @@ async def monitor(bagelresponse):
         del Coglist[:]        
         #runs every 8 minutes 
         await asyncio.sleep(500)
+    running = 1
 @bot.command(name = 'Bateman')
 #TODO more movies?
 #silly function to test message functionality. left in as it tests bot's simple commands
