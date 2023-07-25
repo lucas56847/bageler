@@ -136,5 +136,11 @@ async def coginvasions(ctx):
 @bot.command(name = 'test')
 async def test(channel):
     await channel.send("test")
+@bot.command(name = 'whatsnew')    
+async def whatsnew(ctx):
+   
+    response = 'Bagelbot 1.2\nChangelog: Fixed bug when restarting monitor, bagelbot would actively refuse ' \
+               'to monitor ever again. Also added the whatsnew function. More: https://github.com/lucas56847/bageler'
+    await ctx.send(response)
 bot.run(token)
 
