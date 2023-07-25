@@ -9,7 +9,9 @@ from discord.ext import commands
 load_dotenv()
 
 #TODO implement linux compatibility with .env file loading procedure
-#TODO error handling
+#TODO implement messaging capability
+#todo optimize webgrab
+#TODO error handling --- sorta done
 #TODO get rid of nohup: nohup command >/dev/null 2>&1 
 token = os.getenv("token")
 guildname = os.getenv('discord_guild')
@@ -39,8 +41,9 @@ async def on_ready():
 @bot.command(name = 'stop')
 async def stop(response):
     global Monitoring
+    global running
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
-    Monitoring = 0
+    Monitoring, running = 0
     
     response = "Stopping!"
     print(response)
