@@ -9,7 +9,9 @@ from discord.ext import commands
 load_dotenv()
 
 #TODO implement linux compatibility with .env file loading procedure
-#TODO error handling
+#TODO implement messaging capability
+#todo optimize webgrab
+#TODO error handling --- sorta done
 #TODO get rid of nohup: nohup command >/dev/null 2>&1 
 token = os.getenv("token")
 guildname = os.getenv('discord_guild')
@@ -39,8 +41,9 @@ async def on_ready():
 @bot.command(name = 'stop')
 async def stop(response):
     global Monitoring
+    global running
     channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
-    Monitoring = 0
+    Monitoring, running = 0
     
     response = "Stopping!"
     print(response)
@@ -133,5 +136,11 @@ async def coginvasions(ctx):
 @bot.command(name = 'test')
 async def test(channel):
     await channel.send("test")
+@bot.command(name = 'whatsnew')    
+async def whatsnew(ctx):
+   
+    response = 'Bagelbot 1.2\nChangelog: Fixed bug when restarting monitor, bagelbot would actively refuse ' \
+               'to monitor ever again. Also added the whatsnew function. More: https://github.com/lucas56847/bageler'
+    await ctx.send(response)
 bot.run(token)
 
