@@ -1,7 +1,7 @@
 import os, time, asyncio, pytz
 import discord,random, requests
 from array import *
-from datetime import datetime
+from datetime import datetime,date
 from bs4 import BeautifulSoup
 from invasion import *
 from dotenv import load_dotenv
@@ -13,8 +13,9 @@ load_dotenv()
 #todo optimize webgrab
 #TODO error handling --- sorta done
 #TODO get rid of nohup: nohup command >/dev/null 2>&1 
+
+
 token = os.getenv("token")
-guildname = os.getenv('discord_guild')
 intents = discord.Intents.default()
 intents.presences = True
 intents.members = True
@@ -22,43 +23,59 @@ intents.message_content = True
 intents.reactions = True
 intents.guilds = True
 client = discord.Client(intents=intents)
+
 #initializes discord bot settings to allow for correct command handling
 #commands can be activated with '!'
+
 bot = commands.Bot(command_prefix='!', intents = intents)
 Monitoring = 0
 running = 0
 tz_LA = pytz.timezone('America/Los_Angeles') 
+
 # Get the correct timezone for use later when bot is running
 #PST for Toon time
 
-#confirms that the bot is online
+starttime = time.time()
+startdate = date.today()
+
+#confirms that the bot is online or has reconnected.
 @bot.event
 async def on_ready():
-    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
-    await channel.send("The Bageler emerges!")
+    for guild in bot.guilds:
+        print(guild.id)
+        channel = discord.utils.get(guild.channels, name='bageler')
+        if (channel):
+            await channel.send("The Bageler emerges!")
     print("Eat glass!")
-#monitor function that monitors the invasion every ~8 minutes 
+    
+#command to stop monitoring, prints to console and channel    
 @bot.command(name = 'stop')
 async def stop(response):
     global Monitoring
     global running
-    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))
-    Monitoring, running = 0
+    channel = response.channel
+    Monitoring = 0
+    running = 0
     
     response = "Stopping!"
     print(response)
     await channel.send(response)
+
+
+#monitor function that monitors the invasion every ~8 minutes 
 @bot.command(name = 'monitor')
 async def monitor(bagelresponse):
     global Monitoring
-    Monitoring = 1
     global running
+    Monitoring = 1
     running += 1
+    
     print('I\'m eating glass')
-    channel = (bot.get_channel(1117126591370235948) or await bot.fetch_channel(1117126591370235948))  
+    channel = (bagelresponse.channel)  
     while Monitoring:
         datetime_LA = datetime.now(tz_LA)
-    
+        newtime = time.time()
+        
         if running > 1:
             await channel.send("Monitoring already in progress! Idiot!")
             break
@@ -76,13 +93,21 @@ async def monitor(bagelresponse):
         #formatting
         bagelresponse = "## __Invasions at: " + ToonTime + " Toon time (PST)__\n" + bagelresponse
         await channel.send(bagelresponse)
+     
+        finishtime = time.time()
+        timetaken = (finishtime - newtime)
         
+        await channel.send("Time taken: ")
+        await channel.send(timetaken)
+       
         #deletes list at the end 
         del bagelresponse    
         del Coglist[:]        
+        
         #runs every 8 minutes 
         await asyncio.sleep(500)
     running = 1
+    
 @bot.command(name = 'Bateman')
 #TODO more movies?
 #silly function to test message functionality. left in as it tests bot's simple commands
@@ -117,30 +142,46 @@ async def bateman(ctx):
 
 Coglist = []
 Numlist =[]
-DistrictList =[]
+DistrictList =[] #do i need this?
 
 #invasions can be manually grabbed
 @bot.command(name = 'invasions')
 async def coginvasions(ctx):
+    channel = (ctx.channel)
+    newtime = time.time()
+    
     await ctx.send("Grabbing invasions...")
+    
     NewCoglist = getinvasions(Coglist)
     bagelresponse = '\n\n'.join((NewCoglist))
+    
     if not bagelresponse:
-        bagelresponse = "heck there are no invasions"
+        bagelresponse = "Oh god oh fuck there are no invasions"
     await ctx.send(bagelresponse)
+    finishtime = time.time()
+    timetaken = (finishtime - newtime)
+    await channel.send("Time taken: ")
+    await channel.send(timetaken)
+       
     del bagelresponse    
     del Coglist[:]
+    
 #TODO - implement message sending to users that opt in for a specific cog or suit type
 #TODO add better comments
     
-@bot.command(name = 'test')
-async def test(channel):
-    await channel.send("test")
 @bot.command(name = 'whatsnew')    
 async def whatsnew(ctx):
    
     response = 'Bagelbot 1.2\nChangelog: Fixed bug when restarting monitor, bagelbot would actively refuse ' \
                'to monitor ever again. Also added the whatsnew function. More: https://github.com/lucas56847/bageler'
     await ctx.send(response)
+
+@bot.command(name = 'time')
+async def timer(ctx):
+    await ctx.send("Bageler has been running since:")
+    bageltime = time.time() - starttime
+    await ctx.send(bageltime)
+    await ctx.send(startdate)
+    
 bot.run(token)
 
