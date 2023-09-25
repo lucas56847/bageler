@@ -14,6 +14,7 @@ load_dotenv()
 #TODO error handling --- sorta done
 #TODO get rid of nohup: nohup command >/dev/null 2>&1 
 
+
 token = os.getenv("token")
 intents = discord.Intents.default()
 intents.presences = True
