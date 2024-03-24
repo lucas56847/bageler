@@ -56,7 +56,7 @@ async def stop(response):
     channel = response.channel
     Monitoring = 0
     running = 0
-    
+        
     response = "Stopping!"
     print(response)
     await channel.send(response)
@@ -65,16 +65,27 @@ async def stop(response):
 #monitor function that monitors the invasion every ~8 minutes 
 @bot.command(name = 'monitor')
 async def monitor(bagelresponse):
+    delayFlag = 0
     global Monitoring
     global running
     Monitoring = 1
     running += 1
+    longest = 0
+    loops = 0;
+    totalTime = 0
     
     print('I\'m eating glass')
     channel = (bagelresponse.channel)  
     while Monitoring:
         datetime_LA = datetime.now(tz_LA)
         newtime = time.time()
+        loops += 1
+        
+
+        if (delayFlag != 0):
+            await channel.send("Delay between invasion commands: ")
+            delayTime = newtime - timeBetweenInstances
+            await channel.send(delayTime)
         
         if running > 1:
             await channel.send("Monitoring already in progress! Idiot!")
@@ -95,15 +106,26 @@ async def monitor(bagelresponse):
         await channel.send(bagelresponse)
      
         finishtime = time.time()
-        timetaken = (finishtime - newtime)
+        timeTaken = (finishtime - newtime)
+
+        totalTime += timeTaken
         
-        await channel.send("Time taken: ")
-        await channel.send(timetaken)
-       
+        avgTime = totalTime/loops
+        avgStr = ("Average time: " + str(round(avgTime,2)) + "\n")
+        
+        timeTakeStr = ("Time taken: " + str(round(timeTaken,2)) + "\n")
+        
+        if (longest < timeTaken):
+            longest = timeTaken
+        longTimeStr = ("Longest time taken: "+ str(round(longest,2)) + "\n")
+
+        await channel.send(avgStr + timeTakeStr + longTimeStr)           
+        
         #deletes list at the end 
         del bagelresponse    
         del Coglist[:]        
-        
+        delayFlag += 1
+        timeBetweenInstances = time.time()
         #runs every 8 minutes 
         await asyncio.sleep(500)
     running = 1
@@ -131,7 +153,7 @@ async def bateman(ctx):
                         'my punishment continues to elude me, and I gain no deeper knowledge of myself. No new knowledge can be extracted '+
                         'from my telling. This confession has meant nothing.',
                         'There is a moment of sheer panic when I realize that Paul\'s apartment overlooks the park... and is obviously more '+
-                        'expensive than mine',
+                        'expensive than mine.',
                         'Impressive. Very nice.',
                         'Why not, you stupid bastard?',
                         'I\'m just a happy camper! Rockin\' and a-rollin\'!',
@@ -162,7 +184,7 @@ async def coginvasions(ctx):
     finishtime = time.time()
     timetaken = (finishtime - newtime)
     await channel.send("Time taken: ")
-    await channel.send(timetaken)
+    await channel.send(round(timetaken,2))
        
     del bagelresponse    
     del Coglist[:]

@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-
+#use selenium 4.8.3
 #TODO you gottta fix the errors to improve runtime -- done?
 
 #defines arguments for webdriver which is run by selenium
