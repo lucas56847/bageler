@@ -3,9 +3,12 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-
+from selenium.common.exceptions import SessionNotCreatedException
 #use selenium 4.8.3
 #TODO you gottta fix the errors to improve runtime -- done?
+
+class driverError(Exception):
+    pass
 
 #defines arguments for webdriver which is run by selenium
 def getinvasions(Coglist):
@@ -17,25 +20,34 @@ def getinvasions(Coglist):
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
 
-    driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
-    driver.get(url)
+    try:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        if driver == None:
+            raise driverError
+        driver.get(url)
 
-    page = driver.page_source
-    i = 0
-    driver.quit()
-    soup = BeautifulSoup(page, 'html.parser')
+        page = driver.page_source
+        driver.quit()
+        
+    except SessionNotCreatedException:
+        errorStr = 1
+        print("Ruh roh!")
+        return(errorStr)
+    except:
+        errorStr = 2
+        print("Zoinks!")
+        return(errorStr)
+    else:
+        soup = BeautifulSoup(page, 'html.parser')
     
-    #TODO Formatting?? Probably just some bold text around the cog name but you never know. Likely not
-    #necessary to include labels unless you include an approximately around the time - 
-    
-    for container in soup.find_all('div', attrs={'class':'info-card__content'}):
-     #   print(container.get_text(separator=" "))
+        for container in soup.find_all('div', attrs={'class':'info-card__content'}):       
+            Coglist.append(container.get_text(separator="\n"))
+        i = 0
         
-        Coglist.append(container.get_text(separator="\n"))
+        for i in range(len(Coglist)):
+            Coglist[i] = "**" + Coglist[i]
+            Coglist[i] = Coglist[i].replace("\n","**\n",1)
         
-    for i in range(len(Coglist)):
-        Coglist[i] = "**" + Coglist[i]
-        Coglist[i] = Coglist[i].replace("\n","**\n",1)
-        
-    print((Coglist))
+    print(Coglist)
+    print("Returning successfully")
     return(Coglist)
