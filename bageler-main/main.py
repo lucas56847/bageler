@@ -111,9 +111,9 @@ async def monitor(bagelresponse):
         bagelresponse = '\n\n'.join((NewCoglist))
         
         #no invasions error handling
-        if not bagelresponse:
-            bagelresponse = "Oh god oh fuck there are no invasions"
-            
+        if not bagelresponse
+          bagelresponse = "Oh god oh fuck there are no invasions"
+  
         #formatting
         bagelresponse = "## __Invasions at: " + ToonTime + " Toon time (PST)__\n" + bagelresponse
         await channel.send(bagelresponse)
@@ -198,7 +198,6 @@ async def coginvasions(ctx):
     
     if not bagelresponse:
         bagelresponse = "Oh god oh fuck there are no invasions"
-        
     await ctx.send(bagelresponse)
     finishtime = time.time()
     timetaken = (finishtime - newtime)
