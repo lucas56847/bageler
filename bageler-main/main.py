@@ -80,7 +80,7 @@ async def monitor(bagelresponse):
     Monitoring = 1
     running += 1
     longest = 0
-    loops = 0;
+    loops = 0
     totalTime = 0
     
     print('I\'m eating glass')
@@ -102,7 +102,7 @@ async def monitor(bagelresponse):
         
         NewCoglist = getinvasions(Coglist)
         
-        if isinstance(Coglist, str) == False:
+        if isinstance(Coglist, list) == False:
             if isinstance(Coglist, int) == False:
                 return error[2]
             return error[Coglist]
@@ -116,6 +116,7 @@ async def monitor(bagelresponse):
   
         #formatting
         bagelresponse = "## __Invasions at: " + ToonTime + " Toon time (PST)__\n" + bagelresponse
+        
         await channel.send(bagelresponse)
      
         finishtime = time.time()
