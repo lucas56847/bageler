@@ -6,13 +6,16 @@ from bs4 import BeautifulSoup
 from invasion import *
 from dotenv import load_dotenv
 from discord.ext import commands
+from error import *
 load_dotenv()
 
 #TODO implement linux compatibility with .env file loading procedure
 #TODO implement messaging capability
 #todo optimize webgrab
-#TODO error handling --- sorta done
+#TODO error handling --- sorta done, USE TRY
+#TODO fix blocking stuff
 #TODO get rid of nohup: nohup command >/dev/null 2>&1 
+#call on server with nohup python3 main.py
 
 
 token = os.getenv("token")
@@ -28,6 +31,7 @@ client = discord.Client(intents=intents)
 #commands can be activated with '!'
 
 bot = commands.Bot(command_prefix='!', intents = intents)
+
 Monitoring = 0
 running = 0
 tz_LA = pytz.timezone('America/Los_Angeles') 
@@ -49,20 +53,25 @@ async def on_ready():
     print("Eat glass!")
     
 #command to stop monitoring, prints to console and channel    
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'stop')
 async def stop(response):
     global Monitoring
     global running
     channel = response.channel
+    if Monitoring == 0:
+        response = "Already stopped. Doofus."
+    else:
+        running = 0
+        response = "Stopping!"
+    
     Monitoring = 0
-    running = 0
-        
-    response = "Stopping!"
     print(response)
     await channel.send(response)
 
 
 #monitor function that monitors the invasion every ~8 minutes 
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'monitor')
 async def monitor(bagelresponse):
     delayFlag = 0
@@ -80,12 +89,9 @@ async def monitor(bagelresponse):
         datetime_LA = datetime.now(tz_LA)
         newtime = time.time()
         loops += 1
-        
 
         if (delayFlag != 0):
-            await channel.send("Delay between invasion commands: ")
-            delayTime = newtime - timeBetweenInstances
-            await channel.send(delayTime)
+            await channel.send("Delay between invasion commands:\n" + str(newtime - timeBetweenInstances))
         
         if running > 1:
             await channel.send("Monitoring already in progress! Idiot!")
@@ -95,12 +101,19 @@ async def monitor(bagelresponse):
         ToonTime = datetime_LA.strftime("%H:%M:%S") 
         
         NewCoglist = getinvasions(Coglist)
+        
+        if isinstance(Coglist, str) == False:
+            if isinstance(Coglist, int) == False:
+                return error[2]
+            return error[Coglist]
+            
+        
         bagelresponse = '\n\n'.join((NewCoglist))
         
-        
         #no invasions error handling
-        if not bagelresponse:
-            bagelresponse = "heck there are no invasions"
+        if not bagelresponse
+          bagelresponse = "Oh god oh fuck there are no invasions"
+  
         #formatting
         bagelresponse = "## __Invasions at: " + ToonTime + " Toon time (PST)__\n" + bagelresponse
         await channel.send(bagelresponse)
@@ -130,6 +143,7 @@ async def monitor(bagelresponse):
         await asyncio.sleep(500)
     running = 1
     
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'Bateman')
 #TODO more movies?
 #silly function to test message functionality. left in as it tests bot's simple commands
@@ -167,6 +181,7 @@ Numlist =[]
 DistrictList =[] #do i need this?
 
 #invasions can be manually grabbed
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'invasions')
 async def coginvasions(ctx):
     channel = (ctx.channel)
@@ -175,35 +190,49 @@ async def coginvasions(ctx):
     await ctx.send("Grabbing invasions...")
     
     NewCoglist = getinvasions(Coglist)
-    bagelresponse = '\n\n'.join((NewCoglist))
+    
+    if isinstance(NewCoglist, list) == False:
+        bagelresponse = error[NewCoglist]
+    else: 
+        bagelresponse = '\n\n'.join((NewCoglist))
     
     if not bagelresponse:
         bagelresponse = "Oh god oh fuck there are no invasions"
     await ctx.send(bagelresponse)
     finishtime = time.time()
     timetaken = (finishtime - newtime)
-    await channel.send("Time taken: ")
-    await channel.send(round(timetaken,2))
+    await channel.send("Time taken:\n" + str(round(timetaken,2)))
        
     del bagelresponse    
     del Coglist[:]
     
 #TODO - implement message sending to users that opt in for a specific cog or suit type
 #TODO add better comments
-    
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'whatsnew')    
 async def whatsnew(ctx):
    
-    response = 'Bagelbot 1.2\nChangelog: Fixed bug when restarting monitor, bagelbot would actively refuse ' \
-               'to monitor ever again. Also added the whatsnew function. More: https://github.com/lucas56847/bageler'
+    response = 'Bagelbot 1.4\nChangelog: Added better error handling and increased efficiency of message sending. ' \
+               'Time and stop function slightly improved. More: https://github.com/lucas56847/bageler'
     await ctx.send(response)
-
+    
+@commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
 @bot.command(name = 'time')
 async def timer(ctx):
-    await ctx.send("Bageler has been running since:")
-    bageltime = time.time() - starttime
-    await ctx.send(bageltime)
-    await ctx.send(startdate)
-    
+    bageltime = round((time.time() - starttime)/3600,1)
+    await ctx.send("Bageler has been running since: " + str(startdate) +  " \t" + str(bageltime) + " hours")
+
+@bot.event
+async def on_command_error(ctx,error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send("You are on cooldown for another %.2fs." %error.retry_after)
+    #raise error
+#async def on_message(self, message):
+#    if message.author.id == self.user.id:
+#        return
+ #   if message.content.startswith('!') and len(message.content) > 1:
+ #       channel = client.get_user(message.author.id)
+ #      await asyncio.sleep(10)
+        
 bot.run(token)
 
